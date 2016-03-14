@@ -17,4 +17,4 @@
  * @author Dzhuryn Volodymyr / updated: 2016-03-14
  */
 
-require MODX_BASE_PATH.'assets/plugins/staicElements/plugin.staticElements.php';
+require MODX_BASE_PATH.'assets/plugins/staticElements/plugin.staticElements.php';
