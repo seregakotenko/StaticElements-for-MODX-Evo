@@ -11,13 +11,13 @@
 При першому запуск плагін створить папки для елементів (chunsk,templates,snippets,plugins)
 Щоб додати новий елемент необхідно:
 * Створити у відповідній папці файла
-* В верху файлу додати  текст
-    name:eFeedbackReport 
-    description:eFeedbackReport  шаблон отправки на почту
-    ======
-    ```
-	//тут код шаблона чи чанка
-	<?php
-		echo phpinfo();
-	?>
-	```
+* В верху файлу додати  текст  
+name:eFeedbackReport  
+description:eFeedbackReport  шаблон отправки на почту  
+======  
+```  
+	//тут код шаблона чи чанка  
+	<?php  
+		echo phpinfo();  
+	?>  
+```  
