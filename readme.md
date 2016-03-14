@@ -15,9 +15,7 @@
 name:eFeedbackReport  
 description:eFeedbackReport  шаблон отправки на почту  
 ======  
-```  
-	//тут код шаблона чи чанка  
-	<?php  
-		echo phpinfo();  
-	?>  
-```  
+```//тут код шаблона чи чанка  
+<?php  
+echo phpinfo();  
+?>```  
