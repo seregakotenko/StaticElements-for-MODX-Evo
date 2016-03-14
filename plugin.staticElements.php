@@ -1,4 +1,4 @@
-<?php
+п»ї<?php
 $elementsPath;
 $configFileName;
 
@@ -13,7 +13,7 @@ $expansions = array(
 
 function translit($str)
 {
-    $rus = array('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
+    $rus = array('Рђ', 'Р‘', 'Р’', 'Р“', 'Р”', 'Р•', 'РЃ', 'Р–', 'Р—', 'Р', 'Р™', 'Рљ', 'Р›', 'Рњ', 'Рќ', 'Рћ', 'Рџ', 'Р ', 'РЎ', 'Рў', 'РЈ', 'Р¤', 'РҐ', 'Р¦', 'Р§', 'РЁ', 'Р©', 'РЄ', 'Р«', 'Р¬', 'Р­', 'Р®', 'РЇ', 'Р°', 'Р±', 'РІ', 'Рі', 'Рґ', 'Рµ', 'С‘', 'Р¶', 'Р·', 'Рё', 'Р№', 'Рє', 'Р»', 'Рј', 'РЅ', 'Рѕ', 'Рї', 'СЂ', 'СЃ', 'С‚', 'Сѓ', 'С„', 'С…', 'С†', 'С‡', 'С€', 'С‰', 'СЉ', 'С‹', 'СЊ', 'СЌ', 'СЋ', 'СЏ');
     $lat = array('A', 'B', 'V', 'G', 'D', 'E', 'E', 'Gh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'Ch', 'Sh', 'Sch', 'Y', 'Y', 'Y', 'E', 'Yu', 'Ya', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'gh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'ch', 'sh', 'sch', 'y', 'y', 'y', 'e', 'yu', 'ya');
     return str_replace($rus, $lat, $str);
 }
@@ -37,7 +37,7 @@ function filePars($file)
 
     $fileContent = file_get_contents($file, FILE_USE_INCLUDE_PATH);
     $pos = strpos($fileContent, '======');
-    if ($pos === false) { // нема
+    if ($pos === false) { // РЅРµРјР°
         $startText  = 'name:'.$name.PHP_EOL;
         $startText .= 'description:'.$name.PHP_EOL;
         $startText .= '======'.PHP_EOL;
@@ -170,14 +170,14 @@ function searchInArray($arr, $val)
 function fileRead($fileFull)
 {
     $str = '';
-    $fd = fopen($fileFull, 'r+') or die("Ошибка открытия файла");
+    $fd = fopen($fileFull, 'r+') or die("РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°");
 
-    if (flock($fd, LOCK_EX)) // установка исключительной блокировки на запись
+    if (flock($fd, LOCK_EX)) // СѓСЃС‚Р°РЅРѕРІРєР° РёСЃРєР»СЋС‡РёС‚РµР»СЊРЅРѕР№ Р±Р»РѕРєРёСЂРѕРІРєРё РЅР° Р·Р°РїРёСЃСЊ
     {
         while (!feof($fd)) {
             $str .= fgetss($fd);
         }
-        flock($fd, LOCK_UN); // снятие блокировки
+        flock($fd, LOCK_UN); // СЃРЅСЏС‚РёРµ Р±Р»РѕРєРёСЂРѕРІРєРё
     }
     fclose($fd);
     return $str;
@@ -254,7 +254,7 @@ $eventName = $modx->event->name;
 $eventParams = $modx->Event->params;
 
 
-if (!file_exists($elementsPath . $configFileName)) { //перший старт скрипта
+if (!file_exists($elementsPath . $configFileName)) { //РїРµСЂС€РёР№ СЃС‚Р°СЂС‚ СЃРєСЂРёРїС‚Р°
     $statusCheck = true;
     $config = array(
         'chunks' => array(),
@@ -264,7 +264,7 @@ if (!file_exists($elementsPath . $configFileName)) { //перший старт скрипта
     );
     if (!file_exists($elementsPath)) {
         if (!mkdir($elementsPath, 0755)) {
-            $modx->logEvent(2002, 3, 'Не створена папка для елементів', 'Не вдалось створити папку');
+            $modx->logEvent(2002, 3, 'РќРµ СЃС‚РІРѕСЂРµРЅР° РїР°РїРєР° РґР»СЏ РµР»РµРјРµРЅС‚С–РІ', 'РќРµ РІРґР°Р»РѕСЃСЊ СЃС‚РІРѕСЂРёС‚Рё РїР°РїРєСѓ');
             return false;
         }
     }
@@ -274,9 +274,9 @@ if (!file_exists($elementsPath . $configFileName)) { //перший старт скрипта
         $element = $key;
 
 
-        if (!file_exists($elementsPath . $element)) {  // створюєм папку для елементу
+        if (!file_exists($elementsPath . $element)) {  // СЃС‚РІРѕСЂСЋС”Рј РїР°РїРєСѓ РґР»СЏ РµР»РµРјРµРЅС‚Сѓ
             if (!mkdir($elementsPath . $element, 0755)) {
-                $modx->logEvent(2002, 3, 'Не створена папка для елементу ' . $element, 'Не вдалось створити папку');
+                $modx->logEvent(2002, 3, 'РќРµ СЃС‚РІРѕСЂРµРЅР° РїР°РїРєР° РґР»СЏ РµР»РµРјРµРЅС‚Сѓ ' . $element, 'РќРµ РІРґР°Р»РѕСЃСЊ СЃС‚РІРѕСЂРёС‚Рё РїР°РїРєСѓ');
                 return false;
             }
         }
@@ -311,20 +311,20 @@ if (!file_exists($elementsPath . $configFileName)) { //перший старт скрипта
 
             $categoryName = $categoryCheckResp['category'];
             $filePathFull = $elementsPath . $element . '/';
-            if ($elemCategory > 0) { // якщо елемент має категорію
+            if ($elemCategory > 0) { // СЏРєС‰Рѕ РµР»РµРјРµРЅС‚ РјР°С” РєР°С‚РµРіРѕСЂС–СЋ
 
                 $filePathFull .= $categoryName . '/';
             }
 
-            if (!file_exists($filePathFull)) {  // створюєм папку для категорії
+            if (!file_exists($filePathFull)) {  // СЃС‚РІРѕСЂСЋС”Рј РїР°РїРєСѓ РґР»СЏ РєР°С‚РµРіРѕСЂС–С—
                 if (!mkdir($filePathFull, 0755)) {
-                    $modx->logEvent(2002, 3, 'Не створена папка для категоії ' . $categoryName . ' елемент ' . $element, 'Не вдалось створити папку');
+                    $modx->logEvent(2002, 3, 'РќРµ СЃС‚РІРѕСЂРµРЅР° РїР°РїРєР° РґР»СЏ РєР°С‚РµРіРѕС–С— ' . $categoryName . ' РµР»РµРјРµРЅС‚ ' . $element, 'РќРµ РІРґР°Р»РѕСЃСЊ СЃС‚РІРѕСЂРёС‚Рё РїР°РїРєСѓ');
                     return false;
                 }
             }
 
 
-            fileWrite($filePathFull . $fileName, $fileText); //збрегшаєм файл
+            fileWrite($filePathFull . $fileName, $fileText); //Р·Р±СЂРµРіС€Р°С”Рј С„Р°Р№Р»
             $config[$element][$elemId] = array(
                 'elementName' => $elemName,
                 'fileName' => $fileName,
@@ -346,7 +346,7 @@ if ($eventName == 'OnWebPageInit') {
 
     foreach ($config as $key => $el) {
 
-        $element = $key; // нахва едеменьу
+        $element = $key; // РЅР°С…РІР° РµРґРµРјРµРЅСЊСѓ
         $elementPath = $elementsPath . $element;
 
         if (!file_exists($elementPath)) {
@@ -378,7 +378,7 @@ if ($eventName == 'OnWebPageInit') {
 
             $response = searchInArray($config[$element], $file['fileName']);
             //echo $file['fileName'] .' - '.!empty($response).'<br>';
-            if (!empty($response)) { //файл уже є
+            if (!empty($response)) { //С„Р°Р№Р» СѓР¶Рµ С”
 
 
                 $fileFull = $elementPath;
@@ -390,7 +390,7 @@ if ($eventName == 'OnWebPageInit') {
 
 
                 if (filemtime($fileFull) > $response['date'] && isset($fileFullParams)) {
-                   // echo 'файл оновлено';
+                   // echo 'С„Р°Р№Р» РѕРЅРѕРІР»РµРЅРѕ';
                     $statusCheck= true;
 
                     $fieldName = $fieldNames['name'];
@@ -408,14 +408,14 @@ if ($eventName == 'OnWebPageInit') {
                         $fields['category'] = $categoryId;
                     }
                     $modx->db->update($fields, $elementTable, 'id = "' . $response['elementId'] . '"');
-                    $config[$element][$response['elementId']]['date'] = time(); // обновляем дату
+                    $config[$element][$response['elementId']]['date'] = time(); // РѕР±РЅРѕРІР»СЏРµРј РґР°С‚Сѓ
                 }
 
 
-            } else { //новий файл
+            } else { //РЅРѕРІРёР№ С„Р°Р№Р»
 
                 $statusCheck= true;
-                //echo 'новий файл';
+                //echo 'РЅРѕРІРёР№ С„Р°Р№Р»';
                 $fileFull = $elementPath;
                 if (!empty($file['category'])) {
                     $fileFull .= '/' . $file['category'];
@@ -504,20 +504,20 @@ elseif(in_array($eventName,array('OnSnipFormSave','OnChunkFormSave','OnTempFormS
 
     $categoryName = $categoryCheckResp['category'];
     $filePathFull = $elementsPath . $element . '/';
-    if ($elemCategory > 0) { // якщо елемент має категорію
+    if ($elemCategory > 0) { // СЏРєС‰Рѕ РµР»РµРјРµРЅС‚ РјР°С” РєР°С‚РµРіРѕСЂС–СЋ
 
         $filePathFull .= $categoryName . '/';
     }
 
-    if (!file_exists($filePathFull)) {  // створюєм папку для категорії
+    if (!file_exists($filePathFull)) {  // СЃС‚РІРѕСЂСЋС”Рј РїР°РїРєСѓ РґР»СЏ РєР°С‚РµРіРѕСЂС–С—
         if (!mkdir($filePathFull, 0755)) {
-            $modx->logEvent(2002, 3, 'Не створена папка для категоії ' . $categoryName . ' елемент ' . $element, 'Не вдалось створити папку');
+            $modx->logEvent(2002, 3, 'РќРµ СЃС‚РІРѕСЂРµРЅР° РїР°РїРєР° РґР»СЏ РєР°С‚РµРіРѕС–С— ' . $categoryName . ' РµР»РµРјРµРЅС‚ ' . $element, 'РќРµ РІРґР°Р»РѕСЃСЊ СЃС‚РІРѕСЂРёС‚Рё РїР°РїРєСѓ');
             return false;
         }
     }
 
     if(isset($config[$element][$elemId]['categoryId'])){
-        // отримуэм стару категорію
+        // РѕС‚СЂРёРјСѓСЌРј СЃС‚Р°СЂСѓ РєР°С‚РµРіРѕСЂС–СЋ
         $oldPathFull = $elementsPath . $element . '/';
         $oldFileName = $config[$element][$elemId]['fileName'];
         if($config[$element][$elemId]['categoryId']>0){
@@ -526,12 +526,12 @@ elseif(in_array($eventName,array('OnSnipFormSave','OnChunkFormSave','OnTempFormS
     }
 
     if(isset($config[$element][$elemId]['categoryId']) && ($elemCategory!=$config[$element][$elemId]['categoryId'] || $fileName!=$config[$element][$elemId]['fileName'])){
-        //видаляєм файл при зміні категорії чи назви
+        //РІРёРґР°Р»СЏС”Рј С„Р°Р№Р» РїСЂРё Р·РјС–РЅС– РєР°С‚РµРіРѕСЂС–С— С‡Рё РЅР°Р·РІРё
         unlink($oldPathFull . $oldFileName);
 
     }
 
-    fileWrite($filePathFull . $fileName, $fileText); //збрегшаєм файл
+    fileWrite($filePathFull . $fileName, $fileText); //Р·Р±СЂРµРіС€Р°С”Рј С„Р°Р№Р»
     $config[$element][$elemId] = array(
         'elementName' => $elemName,
         'fileName' => $fileName,
