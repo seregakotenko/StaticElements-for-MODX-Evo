@@ -18,4 +18,4 @@ description:eFeedbackReport  шаблон отправки на почту
 ```//тут код шаблона чи чанка  
 <?php  
 echo phpinfo();  
-?>```  
+?>```   
