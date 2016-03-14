@@ -8,7 +8,7 @@
  * @category    plugin
  * @version     4.3.7.0
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal    @properties &elementsPath=папка элементов;string;assets/elements/  &configFileName=Название конфиг файла;string;config.php
+ * @internal    @properties &elementsPath=папка элементов;string;assets/elements/ &configFileName=Название конфиг файла;string;config.php
  * @internal    @events OnWebPageInit,OnChunkFormDelete,OnChunkFormSave,OnPluginFormDelete,OnPluginFormSave,OnSnipFormDelete,OnSnipFormSave,OnTempFormDelete,OnTempFormSave
  * @internal    @modx_category system
  * @internal    @legacy_names StaticElements
@@ -17,4 +17,4 @@
  * @author Dzhuryn Volodymyr / updated: 2016-03-14
  */
 
-require MODX_BASE_PATH.'assets/plugins/staticElements/plugin.staticElements.php';
+require MODX_BASE_PATH.'assets/plugins/staicElements/plugin.staticElements.php';
