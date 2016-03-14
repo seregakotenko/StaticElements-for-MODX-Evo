@@ -12,7 +12,7 @@
 Щоб додати новий елемент необхідно:
 * Створити у відповідній папці файла
 * В верху файлу додати  текст
-dir name:eFeedbackReport 
-dir description:eFeedbackReport  шаблон отправки на почту
-dir ======
-dir тут код шаблона чи чанка
+    name:eFeedbackReport 
+    description:eFeedbackReport  шаблон отправки на почту
+    ======
+    тут код шаблона чи чанка
