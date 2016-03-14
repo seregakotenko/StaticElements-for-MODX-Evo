@@ -541,6 +541,7 @@ elseif(in_array($eventName,array('OnSnipFormSave','OnChunkFormSave','OnTempFormS
     );
 
     //file_put_contents($debugFile,$elemId);
+	$statusCheck = false;
 }
 elseif(in_array($eventName,array('OnSnipFormDelete','OnChunkFormDelete','OnTempFormDelete','OnPluginFormDelete'))){
   $debugFile = $_SERVER['DOCUMENT_ROOT'].'/debug.txt';
@@ -575,6 +576,7 @@ elseif(in_array($eventName,array('OnSnipFormDelete','OnChunkFormDelete','OnTempF
     unlink($deleteElemFull);
     file_put_contents($debugFile,$deleteElemFull);
 
+	$statusCheck = false;
 }
 
 
@@ -582,8 +584,6 @@ fileWrite($elementsPath . $configFileName, json_encode($config));
 
 $modx->clearCache('full');
 if($statusCheck){
-
-
 
     $redUrl = $_SERVER['REQUEST_URI'];
     header("Location: $redUrl");
