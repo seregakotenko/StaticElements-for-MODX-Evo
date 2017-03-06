@@ -305,8 +305,12 @@ $eventName = $modx->event->name;
 $eventParams = $modx->Event->params;
 $configPluginFileName = 'config.json';
 
+//sl
+$elementPath = $elementsPath . $element;
 
-
+if (!file_exists($elementPath)) {
+    mkdir($elementPath, 0700, true);
+}
 //конфиг  плагина
 if (!file_exists($elementsPath . $configPluginFileName)) {
     $conf = [
