@@ -8,8 +8,8 @@
  * @category    plugin
  * @version     4.3.7.0
  * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal    @properties &elementsPath=папка элементов;string;assets/elements/ &configFileName=Название конфиг файла;string;config.php &onlyAdmin=Запускать только для админа;string;1 &showDebug=Показытьва отладочную информацию;string;1
- * @internal    @events OnWebPageInit,OnChunkFormDelete,OnChunkFormSave,OnPluginFormDelete,OnPluginFormSave,OnSnipFormDelete,OnSnipFormSave,OnTempFormDelete,OnTempFormSave,OnPageNotFound
+ * @internal    @properties &elementsPath=папка элементов;string;assets/elements/ &configFileName=Название конфиг файла;string;config.php
+ * @internal    @events OnWebPageInit,OnChunkFormDelete,OnChunkFormSave,OnPluginFormDelete,OnPluginFormSave,OnSnipFormDelete,OnSnipFormSave,OnTempFormDelete,OnTempFormSave
  * @internal    @modx_category system
  * @internal    @legacy_names StaticElements
  * @internal    @installset base

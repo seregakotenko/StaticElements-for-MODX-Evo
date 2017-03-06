@@ -6,6 +6,7 @@ $showDebug;
 $start = microtime(true);
 $elementsPath = $_SERVER['DOCUMENT_ROOT'].'/'.$elementsPath;
 
+global $debug;
 $debug = [];
 if($onlyAdmin==1 && empty($_SESSION['mgrShortname'])){
     return ;
@@ -139,6 +140,9 @@ function categoryCheck($category)
 
 
     global $modx;
+    global $debug;
+
+
     $C = $modx->getFullTableName('categories');
     $cat = $modx->db->escape($category);
     $sql = 'SELECT count(id) FROM ' . $C . ' where `category`="' . $cat . '"';
@@ -148,6 +152,8 @@ function categoryCheck($category)
 
 
     if ($count == 0) {
+        $debug['newCategory'][]=$category;
+
         $fields = array('category' => $category);
         $modx->db->insert($fields, $C);
     }
@@ -721,6 +727,15 @@ if($eventName=='OnPageNotFound' && $_GET['q']=='static-debug' && !empty($_SESSIO
 
         }
     }
+    if(is_array($debug['newCategory'])){
+        echo 'Новые категории <br>';
+        foreach ($debug['newCategory'] as $key=>  $type){
+            echo '-- '.$type.'<br>';
+            echo '<br>';
+
+        }
+    }
+    //newCategory
     die();
 }
 fileWrite($elementsPath . $configFileName, json_encode($config));
@@ -735,6 +750,7 @@ $debug['work']=date('d-m-Y h:i:s');
 
 
 if($statusCheck){
+
     $_SESSION['static-debug']=$debug;
     $redUrl = $_SERVER['REQUEST_URI'];
     header("Location: $redUrl");
