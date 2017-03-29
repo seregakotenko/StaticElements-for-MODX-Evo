@@ -1,9 +1,46 @@
 <?php
 $elementsPath;
 $configFileName;
-
+$onlyAdmin;
+$showDebug;
+$start = microtime(true);
 $elementsPath = $_SERVER['DOCUMENT_ROOT'].'/'.$elementsPath;
 
+$debug = [];
+if($onlyAdmin==1 && empty($_SESSION['mgrShortname'])){
+    return ;
+}
+if(!empty($_SESSION['mgrShortname']) && $showDebug==1 && $modx->isFrontend()){
+
+    if(!empty($_SESSION['static-debug'])){
+
+
+        $debugFile = $_SESSION['static-debug'];
+
+
+
+        echo '
+    <div id="static-debug">
+    <div class="static-title">Static Elements</div>
+    Последнее обновление '.$debugFile['work'].'<br>
+    Время обновление '.$debugFile['time'].' секунд <br>
+    <a href="/static-debug" target="_blank">Детальней</a>
+</div>
+    
+    
+    <style>
+    #static-debug{
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        font-size:12px;
+        background: rgba(0, 0, 0, 0.16);
+        padding:10px;
+    }
+</style>
+    ';
+    }
+}
 $expansions = array(
     'chunks'=>'tpl',
     'templates'=>'tpl',
@@ -207,6 +244,7 @@ function getFieldNames($element)
         case 'chunks':
             $fieldNames = array(
                 'tableName' => $modx->getFullTableName('site_htmlsnippets'),
+                'type'=>'chunk',
                 'name' => 'name',
                 'description' => 'description',
                 'code' => 'snippet',
@@ -217,6 +255,7 @@ function getFieldNames($element)
         case 'templates':
             $fieldNames = array(
                 'tableName' => $modx->getFullTableName('site_templates'),
+                'type'=>'template',
                 'name' => 'templatename',
                 'description' => 'description',
                 'code' => 'content',
@@ -227,6 +266,7 @@ function getFieldNames($element)
         case 'snippets':
             $fieldNames = array(
                 'tableName' => $modx->getFullTableName('site_snippets'),
+                'type'=>'snippet',
                 'name' => 'name',
                 'description' => 'description',
                 'code' => 'snippet',
@@ -237,6 +277,7 @@ function getFieldNames($element)
         case 'plugins':
             $fieldNames = array(
                 'tableName' => $modx->getFullTableName('site_plugins'),
+                'type'=>'plugin',
                 'name' => 'name',
                 'description' => 'description',
                 'code' => 'plugincode',
@@ -249,10 +290,63 @@ function getFieldNames($element)
     return $fieldNames;
 }
 
+function removeDirectory($dir) {
+    if ($objs = glob($dir."/*")) {
+        foreach($objs as $obj) {
+            is_dir($obj) ? removeDirectory($obj) : unlink($obj);
+        }
+    }
+    rmdir($dir);
+}
+
+
 $statusCheck = false;
 $eventName = $modx->event->name;
 $eventParams = $modx->Event->params;
+$configPluginFileName = 'config.json';
 
+
+
+//конфиг  плагина
+if (!file_exists($elementsPath . $configPluginFileName)) {
+    $conf = [
+        'path'=>$elementsPath,
+        'domain'=>$_SERVER['HTTP_HOST'],
+    ];
+    file_put_contents($elementsPath . $configPluginFileName,json_encode($conf));
+}
+else{
+    $conf = file_get_contents($elementsPath . $configPluginFileName);
+    $conf = json_decode($conf,true);
+    if($conf['path']!=$elementsPath || $conf['domain']!=$_SERVER['HTTP_HOST']){
+        //'новый сервер';
+
+        $delete = [
+            $elementsPath.'chunks',
+            $elementsPath.'snippets',
+            $elementsPath.'templates',
+            $elementsPath.'plugins',
+        ];
+        foreach ($delete as $e){
+            if(file_exists($e)){
+                removeDirectory($e);
+            }
+        }
+        if(file_exists($elementsPath.'config.php')){
+            unlink($elementsPath.'config.php');
+        }
+
+
+        //новая конфигурация
+        $conf = [
+            'path'=>$elementsPath,
+            'domain'=>$_SERVER['HTTP_HOST'],
+        ];
+        file_put_contents($elementsPath . $configPluginFileName,json_encode($conf));
+        //echo 'новый сервер';
+//        die();
+    }
+}
 
 if (!file_exists($elementsPath . $configFileName)) { //перший старт скрипта
     $statusCheck = true;
@@ -342,7 +436,10 @@ if (!file_exists($elementsPath . $configFileName)) { //перший старт �
 
 $config = fileRead($elementsPath . $configFileName);
 $config = json_decode($config, true);
-if ($eventName == 'OnWebPageInit') {
+
+//$_GET['q']
+
+if ($eventName == 'OnWebPageInit' || $eventName=='OnPageNotFound') {
 
     foreach ($config as $key => $el) {
 
@@ -390,7 +487,7 @@ if ($eventName == 'OnWebPageInit') {
 
 
                 if (filemtime($fileFull) > $response['date'] && isset($fileFullParams)) {
-                   // echo 'файл оновлено';
+                    // echo 'файл оновлено';
                     $statusCheck= true;
 
                     $fieldName = $fieldNames['name'];
@@ -407,6 +504,9 @@ if ($eventName == 'OnWebPageInit') {
                     if (!empty($categoryId)) {
                         $fields['category'] = $categoryId;
                     }
+                    $debug['update'][$fieldNames['type']][]=[
+                        'name'=>$fileFullParams['head']['name'],
+                    ];
                     $modx->db->update($fields, $elementTable, 'id = "' . $response['elementId'] . '"');
                     $config[$element][$response['elementId']]['date'] = time(); // обновляем дату
                 }
@@ -444,6 +544,11 @@ if ($eventName == 'OnWebPageInit') {
                     $elementId = $modx->db->getValue($modx->db->query("select `id` from $elementTable where $fieldName ='" . $name . "'"));
 
                     //echo $elementId . ' ' . $file['fileName'] . '<br>';
+                    //новие файлы
+                    $debug['new'][$fieldNames['type']][]=[
+                        'name'=>$fileFullParams['head']['name'],
+                    ];
+
                     if (empty($elementId)) {
                         $modx->db->insert($fields, $elementTable);
                         $elementId = $modx->db->getValue($modx->db->query("select `id` from $elementTable where $fieldName ='" . $name . "'"));
@@ -541,10 +646,10 @@ elseif(in_array($eventName,array('OnSnipFormSave','OnChunkFormSave','OnTempFormS
     );
 
     //file_put_contents($debugFile,$elemId);
-	$statusCheck = false;
+    $statusCheck = false;
 }
 elseif(in_array($eventName,array('OnSnipFormDelete','OnChunkFormDelete','OnTempFormDelete','OnPluginFormDelete'))){
-  $debugFile = $_SERVER['DOCUMENT_ROOT'].'/debug.txt';
+    $debugFile = $_SERVER['DOCUMENT_ROOT'].'/debug.txt';
 
     $elemId = $eventParams['id'];
 
@@ -575,16 +680,58 @@ elseif(in_array($eventName,array('OnSnipFormDelete','OnChunkFormDelete','OnTempF
     $deleteElemFull = $deleteElemPath. $elementConfig['fileName'];
     unlink($deleteElemFull);
     file_put_contents($debugFile,$deleteElemFull);
-
-	$statusCheck = false;
+    $statusCheck = false;
 }
 
+if($eventName=='OnPageNotFound' && $_GET['q']=='static-debug' && !empty($_SESSION['mgrShortname'])){
 
+    if(empty($_SESSION['static-debug'])){
+        return '';
+    }
+    $debug = $_SESSION['static-debug'];
+
+    echo 'Последнее обновление '.$debug['work'].'<br>';
+    echo 'Время обновление '.$debug['time'].' секунд <br>';
+
+    if(is_array($debug['new'])){
+        echo 'Новие файлы <br>';
+        foreach ($debug['new'] as $key=>  $type){
+            echo '-- '.$key.'<br>';
+            foreach ($type as $e){
+
+                echo '------- '.$e['name'].'<br>';
+            }
+            echo '<br>';
+
+        }
+    }
+    if(is_array($debug['update'])){
+        echo 'Обновленние файлы <br>';
+        foreach ($debug['update'] as $key=>  $type){
+            echo '-- '.$key.'<br>';
+            foreach ($type as $e){
+
+                echo '------- '.$e['name'].'<br>';
+            }
+            echo '<br>';
+
+        }
+    }
+    die();
+}
 fileWrite($elementsPath . $configFileName, json_encode($config));
 
 $modx->clearCache('full');
-if($statusCheck){
 
+$time = microtime(true) - $start;
+$time =  sprintf('%.4F',$time);
+
+$debug['time']=$time;
+$debug['work']=date('d-m-Y h:i:s');
+
+
+if($statusCheck){
+    $_SESSION['static-debug']=$debug;
     $redUrl = $_SERVER['REQUEST_URI'];
     header("Location: $redUrl");
 }
