@@ -24,4 +24,4 @@
 //&onlyAdmin=Только для админа;string;1
 //&showDebug=Дебаг;string;1
 
-require MODX_BASE_PATH.'assets/pugins/staticElements/plugin.staticElements.php';
+require MODX_BASE_PATH.'assets/plugins/staticElements/plugin.staticElements.php';
