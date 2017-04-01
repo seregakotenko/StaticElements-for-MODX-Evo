@@ -36,6 +36,7 @@ if(!empty($_SESSION['mgrShortname']) && $showDebug==1 && $modx->isFrontend()){
         font-size:12px;
         background: rgba(0, 0, 0, 0.16);
         padding:10px;
+            z-index: 10000003;
     }
 </style>
     ';
@@ -308,6 +309,14 @@ $configPluginFileName = 'config.json';
 
 
 //конфиг  плагина
+if (!file_exists($elementsPath)) {
+
+    if (!mkdir($elementsPath, 0755)) {
+        $modx->logEvent(2002, 3, 'Не створена папка для елементів', 'Не вдалось створити папку');
+        return false;
+    }
+}
+
 if (!file_exists($elementsPath . $configPluginFileName)) {
     $conf = [
         'path'=>$elementsPath,
