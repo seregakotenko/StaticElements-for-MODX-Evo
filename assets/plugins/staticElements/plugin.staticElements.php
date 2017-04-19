@@ -10,16 +10,13 @@ $debug = [];
 if($onlyAdmin==1 && empty($_SESSION['mgrShortname'])){
     return ;
 }
-if(!empty($_SESSION['mgrShortname']) && $showDebug==1 && $modx->isFrontend()){
+if(!empty($_SESSION['mgrShortname']) && $showDebug==1 && $modx->isFrontend() && $modx->event->name!='OnPageNotFound'){
 
     if(!empty($_SESSION['static-debug'])){
 
-
         $debugFile = $_SESSION['static-debug'];
 
-
-
-        echo '
+        $modx->regClientHTMLBlock( '
     <div id="static-debug">
     <div class="static-title">Static Elements</div>
     Последнее обновление '.$debugFile['work'].'<br>
@@ -39,7 +36,7 @@ if(!empty($_SESSION['mgrShortname']) && $showDebug==1 && $modx->isFrontend()){
             z-index: 10000003;
     }
 </style>
-    ';
+    ');
     }
 }
 $expansions = array(
@@ -730,7 +727,7 @@ if($eventName=='OnPageNotFound' && $_GET['q']=='static-debug' && !empty($_SESSIO
 }
 fileWrite($elementsPath . $configFileName, json_encode($config));
 
-$modx->clearCache('full');
+
 
 $time = microtime(true) - $start;
 $time =  sprintf('%.4F',$time);
@@ -740,6 +737,7 @@ $debug['work']=date('d-m-Y h:i:s');
 
 
 if($statusCheck){
+    $modx->clearCache('full');
     $_SESSION['static-debug']=$debug;
     $redUrl = $_SERVER['REQUEST_URI'];
     header("Location: $redUrl");
