@@ -741,4 +741,6 @@ if($statusCheck){
     $_SESSION['static-debug']=$debug;
     $redUrl = $_SERVER['REQUEST_URI'];
     header("Location: $redUrl");
+    die();
+    
 }
