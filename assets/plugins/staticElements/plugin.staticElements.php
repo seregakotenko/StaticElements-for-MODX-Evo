@@ -45,7 +45,7 @@ $expansions = array(
     'snippets'=>'php',
     'plugins'=>'php',
 );
-if(function_exists('translit')) {
+if(!function_exists('translit')) {
     function translit($str)
     {
         $rus = array('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
@@ -54,7 +54,7 @@ if(function_exists('translit')) {
     }
 }
 
-if(function_exists('str_replace_once')) {
+if(!function_exists('str_replace_once')) {
     function str_replace_once($search, $replace, $text)
     {
         $pos = strpos($text, $search);
@@ -62,7 +62,7 @@ if(function_exists('str_replace_once')) {
     }
 }
 
-if(function_exists('filePars')) {
+if(!function_exists('filePars')) {
     function filePars($file)
     {
 
@@ -118,7 +118,7 @@ if(function_exists('filePars')) {
 
     }
 }
-if(function_exists('GetListFiles')) {
+if(!function_exists('GetListFiles')) {
     function GetListFiles($folder, &$all_files)
     {
         $fp = opendir($folder);
@@ -132,7 +132,7 @@ if(function_exists('GetListFiles')) {
         closedir($fp);
     }
 }
-if(function_exists('categoryCheck')) {
+if(!function_exists('categoryCheck')) {
     function categoryCheck($category)
     {
 
@@ -160,7 +160,7 @@ if(function_exists('categoryCheck')) {
 
     }
 }
-if(function_exists('fileNameParse')) {
+if(!function_exists('fileNameParse')) {
     function fileNameParse($elementPath, $fileName)
     {
 
@@ -179,7 +179,7 @@ if(function_exists('fileNameParse')) {
         }
     }
 }
-if(function_exists('fileWrite')) {
+if(!function_exists('fileWrite')) {
     function fileWrite($file, $data)
     {
         if ($handle = @fopen($file, 'w+')) {
@@ -190,7 +190,7 @@ if(function_exists('fileWrite')) {
         }
     }
 }
-if(function_exists('searchInArray')) {
+if(!function_exists('searchInArray')) {
     function searchInArray($arr, $val)
     {
 
@@ -205,7 +205,7 @@ if(function_exists('searchInArray')) {
         return false;
     }
 }
-if(function_exists('fileRead')) {
+if(!function_exists('fileRead')) {
     function fileRead($fileFull)
     {
         $str = '';
@@ -222,7 +222,7 @@ if(function_exists('fileRead')) {
         return $str;
     }
 }
-if(function_exists('getCategoryName')) {
+if(!function_exists('getCategoryName')) {
     function getCategoryName($categoryId)
     {
         global $modx;
@@ -237,7 +237,7 @@ if(function_exists('getCategoryName')) {
 
     }
 }
-if(function_exists('getFieldNames')) {
+if(!function_exists('getFieldNames')) {
     function getFieldNames($element)
     {
         //chunks,templates,snippets,plugins
@@ -293,7 +293,7 @@ if(function_exists('getFieldNames')) {
         return $fieldNames;
     }
 }
-if(function_exists('removeDirectory')) {
+if(!function_exists('removeDirectory')) {
     function removeDirectory($dir)
     {
         if ($objs = glob($dir . "/*")) {
