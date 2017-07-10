@@ -45,258 +45,265 @@ $expansions = array(
     'snippets'=>'php',
     'plugins'=>'php',
 );
-
-function translit($str)
-{
-    $rus = array('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
-    $lat = array('A', 'B', 'V', 'G', 'D', 'E', 'E', 'Gh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'Ch', 'Sh', 'Sch', 'Y', 'Y', 'Y', 'E', 'Yu', 'Ya', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'gh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'ch', 'sh', 'sch', 'y', 'y', 'y', 'e', 'yu', 'ya');
-    return str_replace($rus, $lat, $str);
-}
-
-
-function str_replace_once($search, $replace, $text)
-{
-    $pos = strpos($text, $search);
-    return $pos!==false ? substr_replace($text, $replace, $pos, strlen($search)) : $text;
-}
-
-
-
-function filePars($file)
-{
-
-    $name = $file;
-    $name = basename($name, ".php");
-    $name = basename($name, ".tpl");
-
-
-    $fileContent = file_get_contents($file, FILE_USE_INCLUDE_PATH);
-    $pos = strpos($fileContent, '======');
-    if ($pos === false) { // нема
-        $startText  = 'name:'.$name.PHP_EOL;
-        $startText .= 'description:'.$name.PHP_EOL;
-        $startText .= '======'.PHP_EOL;
-        $fileContent = $startText.$fileContent;
-        file_put_contents($file,$fileContent, FILE_USE_INCLUDE_PATH);
-
-    }
-
-    $fileArray = explode('======', $fileContent);
-
-    $scriptHeadParamsStr = $fileArray[0];
-    $scriptHeadParams = explode("\n", $scriptHeadParamsStr);
-
-    $scriptHeadParamsFormat = array();
-    foreach ($scriptHeadParams as $scriptHeadParam) {
-        if (empty($scriptHeadParam)) {
-            continue;
-        }
-        $ar = explode(':', $scriptHeadParam);
-        $ar[0] = trim($ar[0]);
-        $ar[1] = trim($ar[1]);
-
-        $scriptHeadParamsFormat[$ar[0]] = $ar[1];
-    }
-    $scriptBody = $fileArray[1];
-
-    if (empty($scriptHeadParamsFormat['name'])) {
-        $scriptHeadParamsFormat['name'] = $name;
-
-        $startText  = 'name:'.$name.PHP_EOL;
-        $startText .= 'description:'.$name.PHP_EOL;
-        $startText .= '======'.PHP_EOL;
-        $fileContent = $startText.$scriptBody;
-        file_put_contents($file,$fileContent, FILE_USE_INCLUDE_PATH);
-
-
-
-    }
-    return array(
-        'head' => $scriptHeadParamsFormat,
-        'body' => $scriptBody,
-    );
-
-}
-
-
-function GetListFiles($folder, &$all_files)
-{
-    $fp = opendir($folder);
-    while ($cv_file = readdir($fp)) {
-        if (is_file($folder . "/" . $cv_file)) {
-            $all_files[] = $folder . "/" . $cv_file;
-        } elseif ($cv_file != "." && $cv_file != ".." && is_dir($folder . "/" . $cv_file)) {
-            GetListFiles($folder . "/" . $cv_file, $all_files);
-        }
-    }
-    closedir($fp);
-}
-
-function categoryCheck($category)
-{
-
-
-    global $modx;
-    $C = $modx->getFullTableName('categories');
-    $cat = $modx->db->escape($category);
-    $sql = 'SELECT count(id) FROM ' . $C . ' where `category`="' . $cat . '"';
-
-    $result = $modx->db->query($sql);
-    $count = $modx->db->getValue($result);
-
-
-    if ($count == 0) {
-        $fields = array('category' => $category);
-        $modx->db->insert($fields, $C);
-    }
-
-    $sql = 'SELECT * FROM ' . $C . ' where `category`="' . $cat . '"';
-    $result = $modx->db->query($sql);
-    $result = $modx->db->getRow($result);
-
-
-    return $result;
-
-}
-
-function fileNameParse($elementPath, $fileName)
-{
-
-    $clear = str_replace($elementPath . '/', '', $fileName);
-    $level = mb_substr_count($clear, '/');
-    if ($level <= 1) {
-        $arr = explode('/', $clear);
-
-        if (count($arr) == 1) {
-            return array('category' => NULL, 'fileName' => $arr[0]);
-        } else {
-            return array('category' => $arr[0], 'fileName' => $arr[1]);
-        }
-    } else {
-        return NULL;
-    }
-}
-
-function fileWrite($file, $data)
-{
-    if ($handle = @fopen($file, 'w+')) {
-        flock($handle, LOCK_EX);
-        fwrite($handle, $data);
-        flock($handle, LOCK_UN);
-        fclose($handle);
-    }
-}
-
-
-function searchInArray($arr, $val)
-{
-
-    foreach ($arr as $key => $ar) {
-        if ($ar['fileName'] == $val) {
-
-            $data = $ar;
-            $data['elementId'] = $key;
-            return $data;
-        }
-    }
-    return false;
-}
-
-function fileRead($fileFull)
-{
-    $str = '';
-    $fd = fopen($fileFull, 'r+') or die("Ошибка открытия файла");
-
-    if (flock($fd, LOCK_EX)) // установка исключительной блокировки на запись
+if(function_exists('translit')) {
+    function translit($str)
     {
-        while (!feof($fd)) {
-            $str .= fgetss($fd);
+        $rus = array('А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
+        $lat = array('A', 'B', 'V', 'G', 'D', 'E', 'E', 'Gh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'C', 'Ch', 'Sh', 'Sch', 'Y', 'Y', 'Y', 'E', 'Yu', 'Ya', 'a', 'b', 'v', 'g', 'd', 'e', 'e', 'gh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'c', 'ch', 'sh', 'sch', 'y', 'y', 'y', 'e', 'yu', 'ya');
+        return str_replace($rus, $lat, $str);
+    }
+}
+
+if(function_exists('str_replace_once')) {
+    function str_replace_once($search, $replace, $text)
+    {
+        $pos = strpos($text, $search);
+        return $pos !== false ? substr_replace($text, $replace, $pos, strlen($search)) : $text;
+    }
+}
+
+if(function_exists('filePars')) {
+    function filePars($file)
+    {
+
+        $name = $file;
+        $name = basename($name, ".php");
+        $name = basename($name, ".tpl");
+
+
+        $fileContent = file_get_contents($file, FILE_USE_INCLUDE_PATH);
+        $pos = strpos($fileContent, '======');
+        if ($pos === false) { // нема
+            $startText = 'name:' . $name . PHP_EOL;
+            $startText .= 'description:' . $name . PHP_EOL;
+            $startText .= '======' . PHP_EOL;
+            $fileContent = $startText . $fileContent;
+            file_put_contents($file, $fileContent, FILE_USE_INCLUDE_PATH);
+
         }
-        flock($fd, LOCK_UN); // снятие блокировки
+
+        $fileArray = explode('======', $fileContent);
+
+        $scriptHeadParamsStr = $fileArray[0];
+        $scriptHeadParams = explode("\n", $scriptHeadParamsStr);
+
+        $scriptHeadParamsFormat = array();
+        foreach ($scriptHeadParams as $scriptHeadParam) {
+            if (empty($scriptHeadParam)) {
+                continue;
+            }
+            $ar = explode(':', $scriptHeadParam);
+            $ar[0] = trim($ar[0]);
+            $ar[1] = trim($ar[1]);
+
+            $scriptHeadParamsFormat[$ar[0]] = $ar[1];
+        }
+        $scriptBody = $fileArray[1];
+
+        if (empty($scriptHeadParamsFormat['name'])) {
+            $scriptHeadParamsFormat['name'] = $name;
+
+            $startText = 'name:' . $name . PHP_EOL;
+            $startText .= 'description:' . $name . PHP_EOL;
+            $startText .= '======' . PHP_EOL;
+            $fileContent = $startText . $scriptBody;
+            file_put_contents($file, $fileContent, FILE_USE_INCLUDE_PATH);
+
+
+        }
+        return array(
+            'head' => $scriptHeadParamsFormat,
+            'body' => $scriptBody,
+        );
+
     }
-    fclose($fd);
-    return $str;
 }
-
-
-function getCategoryName($categoryId)
-{
-    global $modx;
-
-    $C = $modx->getFullTableName('categories');
-
-    $sql = 'SELECT * FROM ' . $C . ' where `id`="' . $categoryId . '"';
-    $result = $modx->db->query($sql);
-    $result = $modx->db->getRow($result);
-
-    return $result;
-
-}
-
-function getFieldNames($element)
-{
-    //chunks,templates,snippets,plugins
-    global $modx;
-
-    switch ($element) {
-        case 'chunks':
-            $fieldNames = array(
-                'tableName' => $modx->getFullTableName('site_htmlsnippets'),
-                'type'=>'chunk',
-                'name' => 'name',
-                'description' => 'description',
-                'code' => 'snippet',
-                'category' => 'category',
-                'id' => 'id'
-            );
-            break;
-        case 'templates':
-            $fieldNames = array(
-                'tableName' => $modx->getFullTableName('site_templates'),
-                'type'=>'template',
-                'name' => 'templatename',
-                'description' => 'description',
-                'code' => 'content',
-                'category' => 'category',
-                'id' => 'id'
-            );
-            break;
-        case 'snippets':
-            $fieldNames = array(
-                'tableName' => $modx->getFullTableName('site_snippets'),
-                'type'=>'snippet',
-                'name' => 'name',
-                'description' => 'description',
-                'code' => 'snippet',
-                'category' => 'category',
-                'id' => 'id'
-            );
-            break;
-        case 'plugins':
-            $fieldNames = array(
-                'tableName' => $modx->getFullTableName('site_plugins'),
-                'type'=>'plugin',
-                'name' => 'name',
-                'description' => 'description',
-                'code' => 'plugincode',
-                'category' => 'category',
-                'id' => 'id'
-
-            );
-            break;
+if(function_exists('GetListFiles')) {
+    function GetListFiles($folder, &$all_files)
+    {
+        $fp = opendir($folder);
+        while ($cv_file = readdir($fp)) {
+            if (is_file($folder . "/" . $cv_file)) {
+                $all_files[] = $folder . "/" . $cv_file;
+            } elseif ($cv_file != "." && $cv_file != ".." && is_dir($folder . "/" . $cv_file)) {
+                GetListFiles($folder . "/" . $cv_file, $all_files);
+            }
+        }
+        closedir($fp);
     }
-    return $fieldNames;
 }
+if(function_exists('categoryCheck')) {
+    function categoryCheck($category)
+    {
 
-function removeDirectory($dir) {
-    if ($objs = glob($dir."/*")) {
-        foreach($objs as $obj) {
-            is_dir($obj) ? removeDirectory($obj) : unlink($obj);
+
+        global $modx;
+        $C = $modx->getFullTableName('categories');
+        $cat = $modx->db->escape($category);
+        $sql = 'SELECT count(id) FROM ' . $C . ' where `category`="' . $cat . '"';
+
+        $result = $modx->db->query($sql);
+        $count = $modx->db->getValue($result);
+
+
+        if ($count == 0) {
+            $fields = array('category' => $category);
+            $modx->db->insert($fields, $C);
+        }
+
+        $sql = 'SELECT * FROM ' . $C . ' where `category`="' . $cat . '"';
+        $result = $modx->db->query($sql);
+        $result = $modx->db->getRow($result);
+
+
+        return $result;
+
+    }
+}
+if(function_exists('fileNameParse')) {
+    function fileNameParse($elementPath, $fileName)
+    {
+
+        $clear = str_replace($elementPath . '/', '', $fileName);
+        $level = mb_substr_count($clear, '/');
+        if ($level <= 1) {
+            $arr = explode('/', $clear);
+
+            if (count($arr) == 1) {
+                return array('category' => NULL, 'fileName' => $arr[0]);
+            } else {
+                return array('category' => $arr[0], 'fileName' => $arr[1]);
+            }
+        } else {
+            return NULL;
         }
     }
-    rmdir($dir);
 }
+if(function_exists('fileWrite')) {
+    function fileWrite($file, $data)
+    {
+        if ($handle = @fopen($file, 'w+')) {
+            flock($handle, LOCK_EX);
+            fwrite($handle, $data);
+            flock($handle, LOCK_UN);
+            fclose($handle);
+        }
+    }
+}
+if(function_exists('searchInArray')) {
+    function searchInArray($arr, $val)
+    {
 
+        foreach ($arr as $key => $ar) {
+            if ($ar['fileName'] == $val) {
+
+                $data = $ar;
+                $data['elementId'] = $key;
+                return $data;
+            }
+        }
+        return false;
+    }
+}
+if(function_exists('fileRead')) {
+    function fileRead($fileFull)
+    {
+        $str = '';
+        $fd = fopen($fileFull, 'r+') or die("Ошибка открытия файла");
+
+        if (flock($fd, LOCK_EX)) // установка исключительной блокировки на запись
+        {
+            while (!feof($fd)) {
+                $str .= fgetss($fd);
+            }
+            flock($fd, LOCK_UN); // снятие блокировки
+        }
+        fclose($fd);
+        return $str;
+    }
+}
+if(function_exists('getCategoryName')) {
+    function getCategoryName($categoryId)
+    {
+        global $modx;
+
+        $C = $modx->getFullTableName('categories');
+
+        $sql = 'SELECT * FROM ' . $C . ' where `id`="' . $categoryId . '"';
+        $result = $modx->db->query($sql);
+        $result = $modx->db->getRow($result);
+
+        return $result;
+
+    }
+}
+if(function_exists('getFieldNames')) {
+    function getFieldNames($element)
+    {
+        //chunks,templates,snippets,plugins
+        global $modx;
+
+        switch ($element) {
+            case 'chunks':
+                $fieldNames = array(
+                    'tableName' => $modx->getFullTableName('site_htmlsnippets'),
+                    'type' => 'chunk',
+                    'name' => 'name',
+                    'description' => 'description',
+                    'code' => 'snippet',
+                    'category' => 'category',
+                    'id' => 'id'
+                );
+                break;
+            case 'templates':
+                $fieldNames = array(
+                    'tableName' => $modx->getFullTableName('site_templates'),
+                    'type' => 'template',
+                    'name' => 'templatename',
+                    'description' => 'description',
+                    'code' => 'content',
+                    'category' => 'category',
+                    'id' => 'id'
+                );
+                break;
+            case 'snippets':
+                $fieldNames = array(
+                    'tableName' => $modx->getFullTableName('site_snippets'),
+                    'type' => 'snippet',
+                    'name' => 'name',
+                    'description' => 'description',
+                    'code' => 'snippet',
+                    'category' => 'category',
+                    'id' => 'id'
+                );
+                break;
+            case 'plugins':
+                $fieldNames = array(
+                    'tableName' => $modx->getFullTableName('site_plugins'),
+                    'type' => 'plugin',
+                    'name' => 'name',
+                    'description' => 'description',
+                    'code' => 'plugincode',
+                    'category' => 'category',
+                    'id' => 'id'
+
+                );
+                break;
+        }
+        return $fieldNames;
+    }
+}
+if(function_exists('removeDirectory')) {
+    function removeDirectory($dir)
+    {
+        if ($objs = glob($dir . "/*")) {
+            foreach ($objs as $obj) {
+                is_dir($obj) ? removeDirectory($obj) : unlink($obj);
+            }
+        }
+        rmdir($dir);
+    }
+}
 
 $statusCheck = false;
 $eventName = $modx->event->name;
@@ -742,5 +749,5 @@ if($statusCheck){
     $redUrl = $_SERVER['REQUEST_URI'];
     header("Location: $redUrl");
     die();
-    
+
 }
