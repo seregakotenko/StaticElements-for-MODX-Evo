@@ -452,7 +452,7 @@ $config = json_decode($config, true);
 
 //$_GET['q']
 
-if ($eventName == 'OnWebPageInit' || $eventName=='OnPageNotFound') {
+if ($eventName == 'OnWebPageInit' || $eventName=='OnManagerPageInit' || $eventName=='OnPageNotFound') {
 
     foreach ($config as $key => $el) {
 
