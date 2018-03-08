@@ -507,7 +507,7 @@ if ($eventName == 'OnWebPageInit' || $eventName=='OnManagerPageInit' || $eventNa
                     $elementTable = $fieldNames['tableName'];
                     $code = $modx->db->escape($fileFullParams['body']);
                     $code =  str_replace_once('<?php', '', $code);
-                    
+
                     $removeFirst = ['\r','\n'];
                     foreach ($removeFirst as $char) {
                         if(substr($code,0,2) == $char){
@@ -755,6 +755,12 @@ if($statusCheck){
     $modx->clearCache('full');
     $_SESSION['static-debug']=$debug;
     $redUrl = $_SERVER['REQUEST_URI'];
+    if(IN_MANAGER_MODE){
+        echo '<script>
+        location.reload()
+        </script>';
+        die();
+    }
     header("Location: $redUrl");
     die();
 
