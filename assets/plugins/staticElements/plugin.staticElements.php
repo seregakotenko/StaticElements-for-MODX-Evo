@@ -499,7 +499,7 @@ if ($eventName == 'OnWebPageInit' || $eventName=='OnManagerPageInit' || $eventNa
                 $fileFullParams = filePars($fileFull);
 
 
-                if (filemtime($fileFull) > $response['date'] && isset($fileFullParams)) {
+                if (filemtime($fileFull) != $response['date'] && isset($fileFullParams)) {
                     // echo 'файл оновлено';
                     $statusCheck= true;
 
@@ -529,7 +529,7 @@ if ($eventName == 'OnWebPageInit' || $eventName=='OnManagerPageInit' || $eventNa
                         'name'=>$fileFullParams['head']['name'],
                     ];
                     $modx->db->update($fields, $elementTable, 'id = "' . $response['elementId'] . '"');
-                    $config[$element][$response['elementId']]['date'] = time(); // обновляем дату
+                    $config[$element][$response['elementId']]['date'] = filemtime($fileFull); // обновляем дату
                 }
 
 
