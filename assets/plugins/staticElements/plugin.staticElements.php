@@ -39,6 +39,15 @@ if(!empty($_SESSION['mgrShortname']) && $showDebug==1 && $modx->isFrontend() && 
     ');
     }
 }
+global $categoryData;
+$C = $modx->getFullTableName('categories');
+$sql = 'SELECT * FROM ' . $C ;
+$result = $modx->db->query($sql);
+$categoryDateResp = $modx->db->makeArray($result);
+foreach ($categoryDateResp as $el) {
+    $categoryData[$el['category']] = $el;
+}
+
 $expansions = array(
     'chunks'=>'tpl',
     'templates'=>'tpl',
@@ -135,29 +144,20 @@ if(!function_exists('GetListFiles')) {
 if(!function_exists('categoryCheck')) {
     function categoryCheck($category)
     {
-
-
         global $modx;
+        global $categoryData;
         $C = $modx->getFullTableName('categories');
         $cat = $modx->db->escape($category);
-        $sql = 'SELECT count(id) FROM ' . $C . ' where `category`="' . $cat . '"';
-
-        $result = $modx->db->query($sql);
-        $count = $modx->db->getValue($result);
-
-
-        if ($count == 0) {
-            $fields = array('category' => $category);
-            $modx->db->insert($fields, $C);
+        if (empty($categoryData[$category])) {
+            $fields = array('category' => $cat);
+            $newCategoryId = $modx->db->insert($fields, $C);
+            $categoryData[$newCategoryId] = [
+                'id'=>$newCategoryId,
+                'category'=>$category,
+                'rank'=>0,
+            ];
         }
-
-        $sql = 'SELECT * FROM ' . $C . ' where `category`="' . $cat . '"';
-        $result = $modx->db->query($sql);
-        $result = $modx->db->getRow($result);
-
-
-        return $result;
-
+        return $categoryData[$category];
     }
 }
 if(!function_exists('fileNameParse')) {
@@ -499,7 +499,7 @@ if ($eventName == 'OnWebPageInit' || $eventName=='OnManagerPageInit' || $eventNa
                 $fileFullParams = filePars($fileFull);
 
 
-                if (filemtime($fileFull) > $response['date'] && isset($fileFullParams)) {
+                if (filemtime($fileFull) != $response['date'] && isset($fileFullParams)) {
                     // echo 'файл оновлено';
                     $statusCheck= true;
 
@@ -507,6 +507,14 @@ if ($eventName == 'OnWebPageInit' || $eventName=='OnManagerPageInit' || $eventNa
                     $elementTable = $fieldNames['tableName'];
                     $code = $modx->db->escape($fileFullParams['body']);
                     $code =  str_replace_once('<?php', '', $code);
+
+                    $removeFirst = ['\r','\n'];
+                    foreach ($removeFirst as $char) {
+                        if(substr($code,0,2) == $char){
+                            $code = substr($code,2);
+                        }
+
+                    }
                     $fields = array(
                         $fieldNames['name'] => $modx->db->escape($fileFullParams['head']['name']),
                         $fieldNames['description'] => $modx->db->escape($fileFullParams['head']['description']),
@@ -521,7 +529,7 @@ if ($eventName == 'OnWebPageInit' || $eventName=='OnManagerPageInit' || $eventNa
                         'name'=>$fileFullParams['head']['name'],
                     ];
                     $modx->db->update($fields, $elementTable, 'id = "' . $response['elementId'] . '"');
-                    $config[$element][$response['elementId']]['date'] = time(); // обновляем дату
+                    $config[$element][$response['elementId']]['date'] = filemtime($fileFull); // обновляем дату
                 }
 
 
@@ -747,6 +755,12 @@ if($statusCheck){
     $modx->clearCache('full');
     $_SESSION['static-debug']=$debug;
     $redUrl = $_SERVER['REQUEST_URI'];
+    if(IN_MANAGER_MODE){
+        echo '<script>
+        location.reload()
+        </script>';
+        die();
+    }
     header("Location: $redUrl");
     die();
 
